@@ -8,10 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\" />
     <Folder Include="DataBase\" />
     <Folder Include="Interface\" />
     <Folder Include="UI\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BarCode" Version="2023.5.1" />
   </ItemGroup>
 
 </Project>
