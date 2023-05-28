@@ -32,23 +32,34 @@ namespace HW5.Interface
 
                 existProduct.ProductQuantity += productInStock.ProductQuantity;
                 SetData(_stock);
-                return existProduct.Name;
-
+                return $"The {existProduct.Name} was updated.";
             }
+            
             else
             {
                 productInStock.StockId = _stock.Count() + 1;
                 _stock.Add(productInStock);
                 SetData(_stock);
-                return productRepository.GetProductById(productInStock.ProductId);
+                var productName =  productRepository.GetProductById(productInStock.ProductId);
+                return $"The {productName} was added to stock.";
             }
         }
 
 
         public string SaleProduct(int ProductId, int cnt)
         {
-
-            throw new NotImplementedException();
+            var product = _stock.FirstOrDefault(p => p.ProductId == ProductId);
+            int quantity = GetProductQuantity(ProductId);
+            if (quantity > cnt)
+            {
+                product.ProductQuantity -= cnt;
+                SetData(_stock);
+                return $"{cnt} items of {product.Name} were sold successfully";
+            }
+            else
+            {
+                return "Insufficient stock";
+            }
         }
 
         public List<StockProductViewModel> GetSalesProductList()
