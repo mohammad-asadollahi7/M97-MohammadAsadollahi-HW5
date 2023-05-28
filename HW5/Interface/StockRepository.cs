@@ -10,12 +10,15 @@ namespace HW5.Interface
         private readonly List<Stock>? _stock;
         private string? jsonFilePath;
         private string? jsonString;
-        IProductRepository productRepository;
+        private string? txtFilePath;
+        ProductRepository productRepository;
         public StockRepository()
         {
             string? projectPath = Directory.GetParent
                    (AppDomain.CurrentDomain.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
             jsonFilePath = Path.Combine(projectPath, "DataBase/Stock.json");
+            txtFilePath = Path.Combine(projectPath, "Database/SalesList.json");
+
             jsonString = File.ReadAllText(jsonFilePath);
             _stock = JsonConvert.DeserializeObject<List<Stock>>(jsonString);
         }
@@ -34,13 +37,13 @@ namespace HW5.Interface
                 SetData(_stock);
                 return $"The {existProduct.Name} was updated.";
             }
-            
+
             else
             {
                 productInStock.StockId = _stock.Count() + 1;
                 _stock.Add(productInStock);
                 SetData(_stock);
-                var productName =  productRepository.GetProductById(productInStock.ProductId);
+                var productName = productRepository.GetProductById(productInStock.ProductId);
                 return $"The {productName} was added to stock.";
             }
         }
@@ -65,7 +68,26 @@ namespace HW5.Interface
         public List<StockProductViewModel> GetSalesProductList()
         {
 
-            throw new NotImplementedException();
+            var saleslist = (from s in _stock
+                             join p in productRepository.products
+                             on s.ProductId equals p.Id
+                             select new StockProductViewModel()
+                             {
+                                 ProductId = p.Id,
+                                 BarCode = p.BarCode,
+                                 Name = s.Name,
+                                 ProductQuantity = s.ProductQuantity,
+                                 ProductPrice = s.ProductPrice
+                             }).ToList();
+
+            using (TextWriter tw = File.CreateText(txtFilePath))
+            {
+                foreach (var s in saleslist)
+                {
+                    tw.WriteLine(s);
+                }
+            }
+            return saleslist;
         }
 
         public int GetProductQuantity(int productId)

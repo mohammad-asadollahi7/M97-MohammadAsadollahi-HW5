@@ -8,7 +8,7 @@ namespace HW5.Interface
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly List<Product>? _products;
+        public List<Product>? products;
         private string? jsonFilePath;
         private string? jsonString;
         public ProductRepository()
@@ -17,7 +17,7 @@ namespace HW5.Interface
                    (AppDomain.CurrentDomain.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
             jsonFilePath = Path.Combine(projectPath, "DataBase/Product.json");
             jsonString = File.ReadAllText(jsonFilePath);
-            _products = JsonConvert.DeserializeObject<List<Product>>(jsonString);
+            products = JsonConvert.DeserializeObject<List<Product>>(jsonString);
         }
 
         public string AddProduct(Product product)
@@ -26,8 +26,8 @@ namespace HW5.Interface
             bool isValid = CheckProductName(product.Name);
             if (isValid)
             {
-                _products.Add(product);
-                SetData(_products);
+                products.Add(product);
+                SetData(products);
                 return "The product was added successfully.";
             }
             else
@@ -38,13 +38,13 @@ namespace HW5.Interface
 
         public string GetProductById(int Id)
         {
-            var product = _products.FirstOrDefault(p => p.Id == Id);
+            var product = products.FirstOrDefault(p => p.Id == Id);
             return product.Name;
         }
 
         public List<Product> GetProductList()
         {
-            return _products;
+            return products;
         }
 
         public bool CheckProductName(string productName)
