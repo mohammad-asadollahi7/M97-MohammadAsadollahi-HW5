@@ -26,9 +26,20 @@ namespace HW5.Interface
             bool isValid = CheckProductName(product.Name);
             if (isValid)
             {
+                string json2 = JsonConvert.SerializeObject(product);
+                using (FileStream fs = new FileStream(jsonFilePath, FileMode.Append))
+                {
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        sw.WriteLine(json2);
+                    }
+
+
+                }
                 _products.Add(product);
                 SetData(_products);
                 return "The product was added successfully.";
+                
             }
             else
             {
