@@ -26,20 +26,9 @@ namespace HW5.Interface
             bool isValid = CheckProductName(product.Name);
             if (isValid)
             {
-                string json2 = JsonConvert.SerializeObject(product);
-                using (FileStream fs = new FileStream(jsonFilePath, FileMode.Append))
-                {
-                    using (StreamWriter sw = new StreamWriter(fs))
-                    {
-                        sw.WriteLine(json2);
-                    }
-
-
-                }
                 _products.Add(product);
                 SetData(_products);
                 return "The product was added successfully.";
-                
             }
             else
             {
@@ -47,14 +36,15 @@ namespace HW5.Interface
             }
         }
 
-        public string GetProductById(int id)
+        public string GetProductById(int Id)
         {
-            throw new NotImplementedException();
+            var product = _products.FirstOrDefault(p => p.Id == Id);
+            return product.Name;
         }
 
         public List<Product> GetProductList()
         {
-            throw new NotImplementedException();
+            return _products;
         }
 
         public bool CheckProductName(string productName)
