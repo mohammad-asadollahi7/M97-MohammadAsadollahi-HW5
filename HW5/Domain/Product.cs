@@ -1,6 +1,4 @@
-﻿
-
-using IronBarCode;
+﻿using IronBarCode;
 
 namespace HW5.Domain
 {
@@ -8,11 +6,12 @@ namespace HW5.Domain
     {
         public int Id { get; set; }
 
-        public BarcodeResult BarCode { get; set; }
-        
+        public string BarCode { get; set; }
+
         public string Name { get; set; }
-
-
-
     }
 }
+
+
+
+

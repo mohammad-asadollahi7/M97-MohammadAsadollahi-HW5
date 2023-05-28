@@ -6,16 +6,11 @@ namespace HW5.Interface
 {
     public class StockRepository : IStockRepository
     {
-
         private readonly DBContext<Stock> _dbContext;
         private readonly DBContext<Product> _productDbContext;
 
-
-
-
-
-
-        public StockRepository(DBContext<Stock> dbContext, DBContext<Product> productDbContext)
+        public StockRepository(DBContext<Stock> dbContext,
+                                DBContext<Product> productDbContext)
         {
             _dbContext = dbContext;
             _productDbContext = productDbContext;
@@ -24,14 +19,16 @@ namespace HW5.Interface
         public string BuyProduct(Stock productInStock)
         {
             var existProduct = _dbContext.db.FirstOrDefault
-                            (s => s.ProductId == productInStock.ProductId);
+                            (s => s.Name == productInStock.Name);
 
             if (existProduct != null)
             {
-                existProduct.ProductPrice =
-                    ((productInStock.ProductPrice * productInStock.ProductQuantity) +
-                     (existProduct.ProductPrice * existProduct.ProductQuantity))
-                     / (productInStock.ProductQuantity + existProduct.ProductQuantity);
+
+                decimal productPrice = ((productInStock.ProductPrice * productInStock.ProductQuantity) +
+                    (existProduct.ProductPrice * existProduct.ProductQuantity))
+                    / (productInStock.ProductQuantity + existProduct.ProductQuantity);
+                Math.Round(productPrice, 1);
+                existProduct.ProductPrice = productPrice;
 
                 existProduct.ProductQuantity += productInStock.ProductQuantity;
 
@@ -41,12 +38,18 @@ namespace HW5.Interface
 
             else
             {
-                productInStock.StockId = _dbContext.db.Count() + 1;
+                productInStock.StockId = _dbContext.db.Count() + 1000;
+
+                var product = (from p in _productDbContext.db
+                               where p.Name == productInStock.Name
+                               select p).FirstOrDefault();
+
+                productInStock.ProductId = product.Id;
+
                 _dbContext.db.Add(productInStock);
                 _dbContext.SetData();
 
-                var productName = productRepository.GetProductById(productInStock.ProductId);
-                return $"The {productName} was added to stock.";
+                return $"The {product.Name} was added to stock.";
             }
         }
 
@@ -91,7 +94,9 @@ namespace HW5.Interface
             {
                 foreach (var s in saleslist)
                 {
-                    tw.WriteLine(s);
+                    tw.WriteLine(s.ProductId + " " + s.BarCode + " " +
+                                    s.Name + " " + s.ProductPrice +
+                                    " " + s.ProductQuantity);
                 }
             }
             return saleslist;

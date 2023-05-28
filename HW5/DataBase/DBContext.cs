@@ -1,5 +1,4 @@
-﻿
-using HW5.Domain;
+﻿using HW5.Domain;
 using Newtonsoft.Json;
 
 namespace HW5.DataBase
@@ -18,12 +17,14 @@ namespace HW5.DataBase
             jsonFilePath = Path.Combine(projectPath, $"DataBase/{typeof(T).Name}.json");
             jsonString = File.ReadAllText(jsonFilePath);
             db = JsonConvert.DeserializeObject<List<T>>(jsonString);
+
         }
-      
+
         public void SetData()
         {
             jsonString = JsonConvert.SerializeObject(db);
             File.WriteAllText(jsonFilePath, jsonString);
+           
         }
     }
 }
