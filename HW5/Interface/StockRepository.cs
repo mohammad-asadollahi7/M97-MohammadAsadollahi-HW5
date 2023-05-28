@@ -1,6 +1,7 @@
 ﻿
 using HW5.Domain;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace HW5.Interface
 {
@@ -24,10 +25,10 @@ namespace HW5.Interface
 
             if (existProduct != null)
             {
-                existProduct.ProductPrice = 
+                existProduct.ProductPrice =
                     ((productInStock.ProductPrice * productInStock.ProductQuantity) +
                      (existProduct.ProductPrice * existProduct.ProductQuantity))
-                     /(productInStock.ProductQuantity + existProduct.ProductQuantity);
+                     / (productInStock.ProductQuantity + existProduct.ProductQuantity);
 
                 existProduct.ProductQuantity += productInStock.ProductQuantity;
                 SetData(_stock);
@@ -43,17 +44,26 @@ namespace HW5.Interface
             }
         }
 
-        public List<StockProductViewModel> GetSalesProductList()
-        {
-
-            throw new NotImplementedException();
-        }
 
         public string SaleProduct(int ProductId, int cnt)
         {
 
             throw new NotImplementedException();
         }
+
+        public List<StockProductViewModel> GetSalesProductList()
+        {
+
+            throw new NotImplementedException();
+        }
+
+        public int GetProductQuantity(int productId)
+        {
+            return (from s in _stock
+                    where s.ProductId == productId
+                    select s.ProductQuantity).FirstOrDefault();
+        }
+
 
         public void SetData(List<Stock> stocks)
         {
