@@ -1,30 +1,30 @@
-﻿
+﻿using HW5.DataBase;
 using HW5.Domain;
-using Newtonsoft.Json;
-using System.Security.Cryptography;
+
 
 namespace HW5.Interface
 {
     public class StockRepository : IStockRepository
     {
-        private readonly List<Stock>? _stock;
-        private string? jsonFilePath;
-        private string? jsonString;
-        private string? txtFilePath;
-        ProductRepository productRepository;
-        public StockRepository()
-        {
-            string? projectPath = Directory.GetParent
-                   (AppDomain.CurrentDomain.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
-            jsonFilePath = Path.Combine(projectPath, "DataBase/Stock.json");
-            txtFilePath = Path.Combine(projectPath, "Database/SalesList.json");
 
-            jsonString = File.ReadAllText(jsonFilePath);
-            _stock = JsonConvert.DeserializeObject<List<Stock>>(jsonString);
+        private readonly DBContext<Stock> _dbContext;
+        private readonly DBContext<Product> _productDbContext;
+
+
+
+
+
+
+        public StockRepository(DBContext<Stock> dbContext, DBContext<Product> productDbContext)
+        {
+            _dbContext = dbContext;
+            _productDbContext = productDbContext;
         }
+
         public string BuyProduct(Stock productInStock)
         {
-            var existProduct = _stock.FirstOrDefault(s => s.ProductId == productInStock.ProductId);
+            var existProduct = _dbContext.db.FirstOrDefault
+                            (s => s.ProductId == productInStock.ProductId);
 
             if (existProduct != null)
             {
@@ -34,15 +34,17 @@ namespace HW5.Interface
                      / (productInStock.ProductQuantity + existProduct.ProductQuantity);
 
                 existProduct.ProductQuantity += productInStock.ProductQuantity;
-                SetData(_stock);
+
+                _dbContext.SetData();
                 return $"The {existProduct.Name} was updated.";
             }
 
             else
             {
-                productInStock.StockId = _stock.Count() + 1;
-                _stock.Add(productInStock);
-                SetData(_stock);
+                productInStock.StockId = _dbContext.db.Count() + 1;
+                _dbContext.db.Add(productInStock);
+                _dbContext.SetData();
+
                 var productName = productRepository.GetProductById(productInStock.ProductId);
                 return $"The {productName} was added to stock.";
             }
@@ -51,12 +53,12 @@ namespace HW5.Interface
 
         public string SaleProduct(int ProductId, int cnt)
         {
-            var product = _stock.FirstOrDefault(p => p.ProductId == ProductId);
+            var product = _dbContext.db.FirstOrDefault(p => p.ProductId == ProductId);
             int quantity = GetProductQuantity(ProductId);
             if (quantity > cnt)
             {
                 product.ProductQuantity -= cnt;
-                SetData(_stock);
+                _dbContext.SetData();
                 return $"{cnt} items of {product.Name} were sold successfully";
             }
             else
@@ -67,9 +69,8 @@ namespace HW5.Interface
 
         public List<StockProductViewModel> GetSalesProductList()
         {
-
-            var saleslist = (from s in _stock
-                             join p in productRepository.products
+            var saleslist = (from s in _dbContext.db
+                             join p in _productDbContext.db
                              on s.ProductId equals p.Id
                              select new StockProductViewModel()
                              {
@@ -79,6 +80,12 @@ namespace HW5.Interface
                                  ProductQuantity = s.ProductQuantity,
                                  ProductPrice = s.ProductPrice
                              }).ToList();
+
+            string? projectPath = Directory.GetParent
+                                     (AppDomain.CurrentDomain.BaseDirectory)?
+                                     .Parent?.Parent?.Parent?.FullName;
+            string? txtFilePath = Path.Combine(projectPath,
+                                $"DataBase/SalesList.txt");
 
             using (TextWriter tw = File.CreateText(txtFilePath))
             {
@@ -90,18 +97,12 @@ namespace HW5.Interface
             return saleslist;
         }
 
+
         public int GetProductQuantity(int productId)
         {
-            return (from s in _stock
+            return (from s in _dbContext.db
                     where s.ProductId == productId
                     select s.ProductQuantity).FirstOrDefault();
-        }
-
-
-        public void SetData(List<Stock> stocks)
-        {
-            jsonString = JsonConvert.SerializeObject(stocks);
-            File.WriteAllText(jsonFilePath, jsonString);
         }
     }
 }

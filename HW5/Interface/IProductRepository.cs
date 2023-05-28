@@ -7,6 +7,6 @@ namespace HW5.Interface
     {
         string AddProduct(Product product);
         List<Product> GetProductList();
-        string GetProductById(int id);
+        string GetProductById(int Id);
     }
 }

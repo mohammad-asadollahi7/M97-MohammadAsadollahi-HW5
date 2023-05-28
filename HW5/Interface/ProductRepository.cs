@@ -1,23 +1,15 @@
-﻿using HW5.Domain;
-using Newtonsoft.Json;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using HW5.DataBase;
+using HW5.Domain;
 using System.Text.RegularExpressions;
 
 namespace HW5.Interface
 {
     public class ProductRepository : IProductRepository
     {
-        public List<Product>? products;
-        private string? jsonFilePath;
-        private string? jsonString;
-        public ProductRepository()
+        private readonly DBContext<Product> _dbContext;
+        public ProductRepository(DBContext<Product> dBContext)
         {
-            string? projectPath = Directory.GetParent
-                   (AppDomain.CurrentDomain.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
-            jsonFilePath = Path.Combine(projectPath, "DataBase/Product.json");
-            jsonString = File.ReadAllText(jsonFilePath);
-            products = JsonConvert.DeserializeObject<List<Product>>(jsonString);
+            _dbContext = dBContext;
         }
 
         public string AddProduct(Product product)
@@ -26,8 +18,8 @@ namespace HW5.Interface
             bool isValid = CheckProductName(product.Name);
             if (isValid)
             {
-                products.Add(product);
-                SetData(products);
+                _dbContext.db.Add(product);
+                _dbContext.SetData();
                 return "The product was added successfully.";
             }
             else
@@ -38,13 +30,13 @@ namespace HW5.Interface
 
         public string GetProductById(int Id)
         {
-            var product = products.FirstOrDefault(p => p.Id == Id);
+            var product = _dbContext.db.FirstOrDefault(p => p.Id == Id);
             return product.Name;
         }
 
         public List<Product> GetProductList()
         {
-            return products;
+            return _dbContext.db;
         }
 
         public bool CheckProductName(string productName)
@@ -52,10 +44,5 @@ namespace HW5.Interface
             return Regex.IsMatch(productName, "^[A-Z]{1}[a-z]{3}[a-zA-Z0-9]{1}_{1}[0-9]{3}$");
         }
 
-        public void SetData(List<Product> products)
-        {
-            jsonString = JsonConvert.SerializeObject(products);
-            File.WriteAllText(jsonFilePath, jsonString);
-        }
     }
 }
