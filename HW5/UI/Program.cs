@@ -22,7 +22,7 @@ class Program
             if (menuOption == "1")
             {
                 Console.Clear();
-                Console.WriteLine("Enter the name(pattern: Azxcs_123):");
+                Console.Write("Enter the name(pattern: Azxcs_123): ");
                 Product product = new Product();
                 product.Name = Console.ReadLine();
                 string message = productRepository.Add(product);
@@ -35,7 +35,7 @@ class Program
             {
                 Console.Clear();
                 var products = productRepository.GetList();
-                Console.WriteLine("product Id and product name:");
+                Console.Write("product Id and product name: ");
                 foreach (var product in products)
                 {
                     Console.WriteLine(product.Id + "  " + product.Name);
@@ -48,7 +48,7 @@ class Program
             {
                 Console.Clear();
                 var productsInStock = stockRepository.GetSalesProductList();
-                Console.WriteLine("Id, name, quantity and price:");
+                Console.Write("Id, name, quantity and price: ");
                 foreach (var productInStock in productsInStock)
                 {
                     Console.WriteLine(productInStock.ProductId + " " + 
@@ -76,6 +76,24 @@ class Program
                 Console.ReadKey();
             }
 
+            else if (menuOption == "5")
+            {
+                Console.Clear();
+                Console.Write("Product Id: ");
+                int productId = int.Parse(Console.ReadLine());
+                Console.Write("Number of product: ");
+                int cnt = int.Parse(Console.ReadLine()); 
+                string message = stockRepository.Sale(productId, cnt);
+                Console.Clear();
+                Console.WriteLine(message);
+                Console.ReadKey();
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Bye");
+                break;
+            }
 
         } while (true);
     }
