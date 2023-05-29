@@ -30,6 +30,17 @@ class Program
                 Console.WriteLine(message);
                 Console.ReadKey();
             }
+            else if (menuOption == "2")
+            {
+                Console.Clear();
+                var products = productRepository.GetList();
+                Console.WriteLine("product Id and product name:");
+                foreach (var product in products)
+                {
+                    Console.WriteLine(product.Id + "  " + product.Name);
+                }
+                Console.ReadKey();
+            }
 
 
         } while (true);
