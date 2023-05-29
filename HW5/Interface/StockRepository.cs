@@ -8,6 +8,7 @@ namespace HW5.Interface
     {
         private readonly DBContext<Stock> _dbContext;
         private readonly DBContext<Product> _productDbContext;
+        Log log = new Log();
 
         public StockRepository(DBContext<Stock> dbContext,
                                 DBContext<Product> productDbContext)
@@ -27,12 +28,12 @@ namespace HW5.Interface
                 decimal productPrice = ((productInStock.ProductPrice * productInStock.ProductQuantity) +
                     (existProduct.ProductPrice * existProduct.ProductQuantity))
                     / (productInStock.ProductQuantity + existProduct.ProductQuantity);
-                Math.Round(productPrice, 1);
-                existProduct.ProductPrice = productPrice;
+                existProduct.ProductPrice = Math.Round(productPrice, 1);
 
                 existProduct.ProductQuantity += productInStock.ProductQuantity;
-
+                log.Logger(productInStock, existProduct);
                 _dbContext.SetData();
+
                 return $"The {existProduct.Name} was updated.";
             }
 
@@ -48,7 +49,7 @@ namespace HW5.Interface
                     productInStock.ProductId = product.Id;
                     _dbContext.db.Add(productInStock);
                     _dbContext.SetData();
-
+                    log.Logger(productInStock, productInStock);
                     return $"The {product.Name} was added to stock.";
                 }
                 else
@@ -67,6 +68,7 @@ namespace HW5.Interface
             {
                 product.ProductQuantity -= cnt;
                 _dbContext.SetData();
+                log.Logger(product, cnt);
                 return $"{cnt} items of {product.Name} were sold successfully";
             }
             else
@@ -77,7 +79,7 @@ namespace HW5.Interface
 
         public List<StockProductViewModel> GetSalesProductList()
         {
-            var saleslist = (from s in _dbContext.db
+            var salesList = (from s in _dbContext.db
                              join p in _productDbContext.db
                              on s.ProductId equals p.Id
                              select new StockProductViewModel()
@@ -97,14 +99,14 @@ namespace HW5.Interface
 
             using (TextWriter tw = File.CreateText(txtFilePath))
             {
-                foreach (var s in saleslist)
+                foreach (var s in salesList)
                 {
                     tw.WriteLine(s.ProductId + " " + s.BarCode + " " +
                                     s.Name + " " + s.ProductPrice +
                                     " " + s.ProductQuantity);
                 }
             }
-            return saleslist;
+            return salesList;
         }
 
 
