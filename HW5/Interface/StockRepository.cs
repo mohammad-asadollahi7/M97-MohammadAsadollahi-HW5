@@ -16,7 +16,7 @@ namespace HW5.Interface
             _productDbContext = productDbContext;
         }
 
-        public string BuyProduct(Stock productInStock)
+        public string Buy(Stock productInStock)
         {
             var existProduct = _dbContext.db.FirstOrDefault
                             (s => s.Name == productInStock.Name);
@@ -43,18 +43,24 @@ namespace HW5.Interface
                 var product = (from p in _productDbContext.db
                                where p.Name == productInStock.Name
                                select p).FirstOrDefault();
+                if (product != null )
+                {
+                    productInStock.ProductId = product.Id;
 
-                productInStock.ProductId = product.Id;
+                    _dbContext.db.Add(productInStock);
+                    _dbContext.SetData();
 
-                _dbContext.db.Add(productInStock);
-                _dbContext.SetData();
-
-                return $"The {product.Name} was added to stock.";
+                    return $"The {product.Name} was added to stock.";
+                }
+                else
+                {
+                    return $"The {product.Name} was not in the products list.";
+                }
             }
         }
 
 
-        public string SaleProduct(int ProductId, int cnt)
+        public string Sale(int ProductId, int cnt)
         {
             var product = _dbContext.db.FirstOrDefault(p => p.ProductId == ProductId);
             int quantity = GetProductQuantity(ProductId);
@@ -103,7 +109,7 @@ namespace HW5.Interface
         }
 
 
-        public int GetProductQuantity(int productId)
+        private int GetProductQuantity(int productId)
         {
             return (from s in _dbContext.db
                     where s.ProductId == productId

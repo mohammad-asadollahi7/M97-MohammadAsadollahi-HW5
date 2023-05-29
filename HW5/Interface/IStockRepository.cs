@@ -5,8 +5,8 @@ namespace HW5.Interface
 {
     public interface IStockRepository
     {
-        string SaleProduct(int ProductId, int cnt);
-        string BuyProduct(Stock productInStock);
+        string Sale(int ProductId, int cnt);
+        string Buy(Stock productInStock);
         List<StockProductViewModel> GetSalesProductList();
 
     }

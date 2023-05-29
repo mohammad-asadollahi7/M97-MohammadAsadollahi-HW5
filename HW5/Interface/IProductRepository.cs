@@ -5,8 +5,8 @@ namespace HW5.Interface
 {
     public interface IProductRepository
     {
-        string AddProduct(Product product);
-        List<Product> GetProductList();
+        string Add(Product product);
+        List<Product> GetList();
         string GetProductById(int? Id);
     }
 }

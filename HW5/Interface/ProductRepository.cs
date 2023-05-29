@@ -15,14 +15,14 @@ namespace HW5.Interface
             _dbContext = dBContext;
         }
 
-        public string AddProduct(Product product)
+        public string Add(Product product)
         {
 
             bool isValid = CheckProductName(product.Name);
             if (isValid)
             {
-                product.Id = SetId();
-                product.BarCode = SetBarCode();
+                product.Id = SetProductId();
+                product.BarCode = SetProductBarCode();
                 _dbContext.db.Add(product);
                 _dbContext.SetData();
                 return "The product was added successfully.";
@@ -39,21 +39,21 @@ namespace HW5.Interface
             return product.Name;
         }
 
-        public List<Product> GetProductList()
+        public List<Product> GetList()
         {
             return _dbContext.db;
         }
 
-        public bool CheckProductName(string productName)
+        private bool CheckProductName(string productName)
         {
             return Regex.IsMatch(productName, "^[A-Z]{1}[a-z]{3}[a-zA-Z0-9]{1}_{1}[0-9]{3}$");
         }
 
-        public int SetId()
+        private int SetProductId()
         {
             return _dbContext.db.Count() + 1;
         }
-        public string SetBarCode()
+        private string SetProductBarCode()
         {
             System.Random r = new System.Random();
             int f = r.Next();
