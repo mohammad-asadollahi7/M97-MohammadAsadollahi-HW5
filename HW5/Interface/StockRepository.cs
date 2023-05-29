@@ -43,10 +43,9 @@ namespace HW5.Interface
                 var product = (from p in _productDbContext.db
                                where p.Name == productInStock.Name
                                select p).FirstOrDefault();
-                if (product != null )
+                if (product != null)
                 {
                     productInStock.ProductId = product.Id;
-
                     _dbContext.db.Add(productInStock);
                     _dbContext.SetData();
 
@@ -54,7 +53,7 @@ namespace HW5.Interface
                 }
                 else
                 {
-                    return $"The {product.Name} was not in the products list.";
+                    return $"The {productInStock.Name} was not in the products list.";
                 }
             }
         }

@@ -29,7 +29,8 @@ namespace HW5.Interface
             }
             else
             {
-                return "The selected product name is not correct.";
+                return "The selected product name is" +
+                            " incorrect or duplicate.";
             }
         }
 
@@ -46,7 +47,15 @@ namespace HW5.Interface
 
         private bool CheckProductName(string productName)
         {
-            return Regex.IsMatch(productName, "^[A-Z]{1}[a-z]{3}[a-zA-Z0-9]{1}_{1}[0-9]{3}$");
+            var sameName = _dbContext.db.FirstOrDefault(p => p.Name == productName);
+            if (sameName == null)
+            {
+                return Regex.IsMatch(productName, "^[A-Z]{1}[a-z]{3}[a-zA-Z0-9]{1}_{1}[0-9]{3}$");
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private int SetProductId()
@@ -55,12 +64,8 @@ namespace HW5.Interface
         }
         private string SetProductBarCode()
         {
-            System.Random r = new System.Random();
-            int f = r.Next();
-
-            GeneratedBarcode myBarcode = IronBarCode.BarcodeWriter.CreateBarcode
-                                (Convert.ToString(f), BarcodeWriterEncoding.Code128);
-            return myBarcode.ToString();
+            System.Random random = new System.Random();
+            return random.Next().ToString();
         }
     }
 }
