@@ -48,15 +48,32 @@ class Program
             {
                 Console.Clear();
                 var productsInStock = stockRepository.GetSalesProductList();
-                Console.WriteLine("Id, quantity and price:");
+                Console.WriteLine("Id, name, quantity and price:");
                 foreach (var productInStock in productsInStock)
                 {
                     Console.WriteLine(productInStock.ProductId + " " + 
+                                        productInStock.Name + " " + 
                                         productInStock.ProductQuantity
                                         + " " + productInStock.ProductPrice);
                 }
                 Console.ReadKey();
                 Console.Clear();
+            }
+
+            else if (menuOption == "4")
+            {
+                Console.Clear();
+                Stock productInStock = new Stock();
+                Console.Write("Name: ");
+                productInStock.Name = Console.ReadLine();
+                Console.Write("Quantity: ");
+                productInStock.ProductQuantity = int.Parse(Console.ReadLine());
+                Console.Write("Price: ");
+                productInStock.ProductPrice = decimal.Parse(Console.ReadLine());
+                string message = stockRepository.Buy(productInStock);
+                Console.Clear();
+                Console.WriteLine(message);
+                Console.ReadKey();
             }
 
 
