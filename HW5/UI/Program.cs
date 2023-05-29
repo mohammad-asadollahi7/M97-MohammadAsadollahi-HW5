@@ -14,9 +14,9 @@ class Program
         do
         {
             Console.WriteLine("1.Add product\n2.Viewing products list\n" +
-                             "3.Sale a product from stock" +
+                                "3.Viewing sales products list" +
                               "\n4.Buy a product for stock\n" +
-                              "5.Viewing sales prodcuts list\n6.Exit");
+                              "5.Sale a product from stock\n6.Exit");
             string menuOption = Console.ReadLine();
 
             if (menuOption == "1")
@@ -30,6 +30,7 @@ class Program
                 Console.WriteLine(message);
                 Console.ReadKey();
             }
+
             else if (menuOption == "2")
             {
                 Console.Clear();
@@ -40,6 +41,22 @@ class Program
                     Console.WriteLine(product.Id + "  " + product.Name);
                 }
                 Console.ReadKey();
+                Console.Clear();
+            }
+
+            else if (menuOption == "3")
+            {
+                Console.Clear();
+                var productsInStock = stockRepository.GetSalesProductList();
+                Console.WriteLine("Id, quantity and price:");
+                foreach (var productInStock in productsInStock)
+                {
+                    Console.WriteLine(productInStock.ProductId + " " + 
+                                        productInStock.ProductQuantity
+                                        + " " + productInStock.ProductPrice);
+                }
+                Console.ReadKey();
+                Console.Clear();
             }
 
 
