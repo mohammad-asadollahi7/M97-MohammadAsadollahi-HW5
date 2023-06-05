@@ -1,6 +1,6 @@
 ﻿using HW5.DataBase;
 using HW5.Domain;
-
+using HW5.Interface.Dto;
 
 namespace HW5.Interface
 {
@@ -17,15 +17,20 @@ namespace HW5.Interface
             _productDbContext = productDbContext;
         }
 
-        public string Buy(Stock productInStock)
+        public string Buy(BuyStockDto productInStockDto)
         {
+            var productInStock = new Stock();
+            productInStock.Name = productInStockDto.Name;
+            productInStock.ProductPrice = productInStockDto.ProductPrice;
+            productInStock.ProductQuantity = productInStockDto.ProductQuantity;
+
             var existProduct = _dbContext.db.FirstOrDefault
                             (s => s.Name == productInStock.Name);
 
             if (existProduct != null)
             {
 
-                decimal productPrice = ((productInStock.ProductPrice * productInStock.ProductQuantity) +
+                var productPrice = ((productInStock.ProductPrice * productInStock.ProductQuantity) +
                     (existProduct.ProductPrice * existProduct.ProductQuantity))
                     / (productInStock.ProductQuantity + existProduct.ProductQuantity);
                 existProduct.ProductPrice = Math.Round(productPrice, 1);
@@ -39,14 +44,15 @@ namespace HW5.Interface
 
             else
             {
-                productInStock.StockId = _dbContext.db.Count() + 1000;
-
                 var product = (from p in _productDbContext.db
-                               where p.Name == productInStock.Name
+                               where p.Name == productInStockDto.Name
                                select p).FirstOrDefault();
+
                 if (product != null)
                 {
+                    productInStock.StockId = _dbContext.db.Count() + 1000;
                     productInStock.ProductId = product.Id;
+
                     _dbContext.db.Add(productInStock);
                     _dbContext.SetData();
                     log.Logger(productInStock, productInStock);
@@ -54,7 +60,7 @@ namespace HW5.Interface
                 }
                 else
                 {
-                    return $"The {productInStock.Name} was not in the products list.";
+                    return $"The {productInStockDto.Name} was not in the products list.";
                 }
             }
         }

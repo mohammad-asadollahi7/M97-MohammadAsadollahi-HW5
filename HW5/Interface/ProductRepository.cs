@@ -1,7 +1,9 @@
 ﻿using HW5.DataBase;
 using HW5.Domain;
+using HW5.Interface.Dto;
 using IronBarCode;
 using System;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -15,14 +17,19 @@ namespace HW5.Interface
             _dbContext = dBContext;
         }
 
-        public string Add(Product product)
+        public string Add(AddProductDto addProductDto)
         {
 
-            bool isValid = CheckProductName(product.Name);
+            bool isValid = CheckProductName(addProductDto.Name);
             if (isValid)
             {
-                product.Id = SetProductId();
-                product.BarCode = SetProductBarCode();
+                var product = new Product
+                {
+                    Name = addProductDto.Name,
+                    Id = SetProductId(),
+                    BarCode = SetProductBarCode(),
+                };
+
                 _dbContext.db.Add(product);
                 _dbContext.SetData();
                 return "The product was added successfully.";
@@ -40,10 +47,25 @@ namespace HW5.Interface
             return product.Name;
         }
 
-        public List<Product> GetList()
+        public List<ProductsDto> GetList()
         {
-            return _dbContext.db;
+            var products = _dbContext.db;
+            return MapToDto(products);
         }
+        private List<ProductsDto> MapToDto(List<Product> products)
+        {
+            List<ProductsDto> productsDto = new List<ProductsDto>();
+            foreach (var product in products)
+            {
+                productsDto.Add(new ProductsDto() 
+                {
+                    Id = product.Id, 
+                    Name = product.Name 
+                });
+            }
+            return productsDto;
+        }
+
 
         private bool CheckProductName(string productName)
         {
