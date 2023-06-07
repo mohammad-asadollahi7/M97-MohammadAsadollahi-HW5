@@ -53,8 +53,8 @@ class Program
                 Console.WriteLine("Id, name, quantity and price:");
                 foreach (var productInStock in productsInStock)
                 {
-                    Console.WriteLine(productInStock.ProductId + " " + 
-                                        productInStock.Name + " " + 
+                    Console.WriteLine(productInStock.ProductId + " " +
+                                        productInStock.Name + " " +
                                         productInStock.ProductQuantity
                                         + " " + productInStock.ProductPrice);
                 }
@@ -64,39 +64,62 @@ class Program
 
             else if (menuOption == "4")
             {
-                Console.Clear();
-                BuyStockDto productInStockDto = new BuyStockDto();
-                Console.Write("Name: ");
-                productInStockDto.Name = Console.ReadLine();
-                Console.Write("Quantity: ");
-                productInStockDto.ProductQuantity = int.Parse(Console.ReadLine());
-                Console.Write("Price: ");
-                productInStockDto.ProductPrice = decimal.Parse(Console.ReadLine());
-                string message = stockRepository.Buy(productInStockDto);
-                Console.Clear();
-                Console.WriteLine(message);
-                Console.ReadKey();
-                Console.Clear();
+                try
+                {
+                    Console.Clear();
+                    BuyStockDto productInStockDto = new BuyStockDto();
+                    Console.Write("Name: ");
+                    productInStockDto.Name = Console.ReadLine();
+                    Console.Write("Quantity: ");
+                    productInStockDto.ProductQuantity = int.Parse(Console.ReadLine());
+                    Console.Write("Price: ");
+                    productInStockDto.ProductPrice = decimal.Parse(Console.ReadLine());
+                    string message = stockRepository.Buy(productInStockDto);
+                    Console.Clear();
+                    Console.WriteLine(message);
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                catch
+                {
+                    Console.WriteLine("The format of quantity " +
+                                 "and price of product is the integer.\n");
+                }
+
             }
 
             else if (menuOption == "5")
             {
-                Console.Clear();
-                Console.Write("Product Id: ");
-                int productId = int.Parse(Console.ReadLine());
-                Console.Write("Number of product: ");
-                int cnt = int.Parse(Console.ReadLine()); 
-                string message = stockRepository.Sale(productId, cnt);
-                Console.Clear();
-                Console.WriteLine(message);
-                Console.ReadKey();
-                Console.Clear();
+                try
+                {
+                    Console.Clear();
+                    Console.Write("Product Id: ");
+                    int productId = int.Parse(Console.ReadLine());
+                    Console.Write("Number of product: ");
+                    int cnt = int.Parse(Console.ReadLine());
+                    string message = stockRepository.Sale(productId, cnt);
+                    Console.Clear();
+                    Console.WriteLine(message);
+                    Console.ReadKey();
+                    Console.Clear();
+
+                }
+                catch
+                {
+                    Console.WriteLine("The Id and number of product " +
+                                         "is the integer.\n");
+                }
             }
-            else
+            else if (menuOption == "6")
             {
                 Console.Clear();
                 Console.WriteLine("Bye");
                 break;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid input\n");
             }
 
         } while (true);

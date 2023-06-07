@@ -27,6 +27,7 @@ namespace HW5.Interface
                 tw.WriteLine("Current stock: {0}\tCurrent price: {1}",
                               existProduct.ProductQuantity,
                               existProduct.ProductPrice);
+                tw.WriteLine("---------------------------------");
             }
         }
 
@@ -40,6 +41,7 @@ namespace HW5.Interface
                              $" product were sold.");
                 tw.WriteLine("Current stock: {0}",
                              productInStock.ProductQuantity);
+                tw.WriteLine("---------------------------------");
             }
         }
     }
