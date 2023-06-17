@@ -9,8 +9,11 @@ class Program
     {
         DBContext<Product> productDbContext = new DBContext<Product>();
         DBContext<Stock> stockDbContext = new DBContext<Stock>();
+        Log log = new Log();
         IProductRepository productRepository = new ProductRepository(productDbContext);
-        IStockRepository stockRepository = new StockRepository(stockDbContext, productDbContext);
+        IStockRepository stockRepository = new StockRepository(stockDbContext, 
+                                                              productDbContext,
+                                                              log);
 
         do
         {

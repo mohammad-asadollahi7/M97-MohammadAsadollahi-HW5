@@ -1,10 +1,9 @@
 ﻿
-namespace HW5.Interface.Dto
+namespace HW5.Interface.Dto;
+
+public class BuyStockDto
 {
-    public class BuyStockDto
-    {
-        public string Name { get; set; }
-        public int ProductQuantity { get; set; }
-        public decimal ProductPrice { get; set; }
-    }
+    public string Name { get; set; }
+    public int ProductQuantity { get; set; }
+    public decimal ProductPrice { get; set; }
 }

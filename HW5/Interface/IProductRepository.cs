@@ -2,12 +2,11 @@
 using HW5.Domain;
 using HW5.Interface.Dto;
 
-namespace HW5.Interface
+namespace HW5.Interface;
+
+public interface IProductRepository
 {
-    public interface IProductRepository
-    {
-        string Add(AddProductDto product);
-        List<ProductsDto> GetList();
-        string GetProductById(int? Id);
-    }
+    string Add(AddProductDto product);
+    List<ProductsDto> GetList();
+    string GetById(int? Id);
 }

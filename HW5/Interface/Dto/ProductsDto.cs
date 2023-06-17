@@ -1,9 +1,8 @@
 ﻿
-namespace HW5.Interface.Dto
+namespace HW5.Interface.Dto;
+
+public class ProductsDto
 {
-    public class ProductsDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+    public int Id { get; set; }
+    public string Name { get; set; }
 }

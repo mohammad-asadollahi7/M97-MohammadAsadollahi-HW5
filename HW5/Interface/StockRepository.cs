@@ -2,125 +2,128 @@
 using HW5.Domain;
 using HW5.Interface.Dto;
 
-namespace HW5.Interface
+namespace HW5.Interface;
+
+public class StockRepository : IStockRepository
 {
-    public class StockRepository : IStockRepository
+    private readonly DBContext<Stock> _dbContext;
+    private readonly DBContext<Product> _productDbContext;
+    private readonly Log _log;
+
+    public StockRepository(DBContext<Stock> dbContext,
+                            DBContext<Product> productDbContext,
+                            Log log)
     {
-        private readonly DBContext<Stock> _dbContext;
-        private readonly DBContext<Product> _productDbContext;
-        Log log = new Log();
+        _dbContext = dbContext;
+        _productDbContext = productDbContext;
+        _log = log;
+    }
 
-        public StockRepository(DBContext<Stock> dbContext,
-                                DBContext<Product> productDbContext)
+    public string Buy(BuyStockDto productInStockDto)
+    {
+        var productInStock = new Stock();
+        productInStock.Name = productInStockDto.Name;
+        productInStock.ProductPrice = productInStockDto.ProductPrice;
+        productInStock.ProductQuantity = productInStockDto.ProductQuantity;
+
+        var existProduct = _dbContext.db.FirstOrDefault
+                        (s => s.Name == productInStock.Name);
+
+        if (existProduct != null)
         {
-            _dbContext = dbContext;
-            _productDbContext = productDbContext;
+
+            var productPrice = ((productInStock.ProductPrice * productInStock.ProductQuantity) +
+                (existProduct.ProductPrice * existProduct.ProductQuantity))
+                / (productInStock.ProductQuantity + existProduct.ProductQuantity);
+            existProduct.ProductPrice = Math.Round(productPrice, 1);
+
+            existProduct.ProductQuantity += productInStock.ProductQuantity;
+            _log.Logger(productInStock, existProduct);
+            _dbContext.Set();
+
+            return $"The {existProduct.Name} was updated.";
         }
 
-        public string Buy(BuyStockDto productInStockDto)
+        else
         {
-            var productInStock = new Stock();
-            productInStock.Name = productInStockDto.Name;
-            productInStock.ProductPrice = productInStockDto.ProductPrice;
-            productInStock.ProductQuantity = productInStockDto.ProductQuantity;
+            var product = (from p in _productDbContext.db
+                           where p.Name == productInStockDto.Name
+                           select p).FirstOrDefault();
 
-            var existProduct = _dbContext.db.FirstOrDefault
-                            (s => s.Name == productInStock.Name);
-
-            if (existProduct != null)
+            if (product != null)
             {
+                productInStock.StockId = _dbContext.db.Count() + 1000;
+                productInStock.ProductId = product.Id;
 
-                var productPrice = ((productInStock.ProductPrice * productInStock.ProductQuantity) +
-                    (existProduct.ProductPrice * existProduct.ProductQuantity))
-                    / (productInStock.ProductQuantity + existProduct.ProductQuantity);
-                existProduct.ProductPrice = Math.Round(productPrice, 1);
-
-                existProduct.ProductQuantity += productInStock.ProductQuantity;
-                log.Logger(productInStock, existProduct);
-                _dbContext.SetData();
-
-                return $"The {existProduct.Name} was updated.";
-            }
-
-            else
-            {
-                var product = (from p in _productDbContext.db
-                               where p.Name == productInStockDto.Name
-                               select p).FirstOrDefault();
-
-                if (product != null)
-                {
-                    productInStock.StockId = _dbContext.db.Count() + 1000;
-                    productInStock.ProductId = product.Id;
-
-                    _dbContext.db.Add(productInStock);
-                    _dbContext.SetData();
-                    log.Logger(productInStock, productInStock);
-                    return $"The {product.Name} was added to stock.";
-                }
-                else
-                {
-                    return $"The {productInStockDto.Name} was not in the products list.";
-                }
-            }
-        }
-
-
-        public string Sale(int ProductId, int cnt)
-        {
-            var product = _dbContext.db.FirstOrDefault(p => p.ProductId == ProductId);
-            int quantity = GetProductQuantity(ProductId);
-            if (quantity > cnt)
-            {
-                product.ProductQuantity -= cnt;
-                _dbContext.SetData();
-                log.Logger(product, cnt);
-                return $"{cnt} items of {product.Name} were sold successfully";
+                _dbContext.db.Add(productInStock);
+                _dbContext.Set();
+                _log.Logger(productInStock, productInStock);
+                return $"The {product.Name} was added to stock.";
             }
             else
             {
-                return "Insufficient stock";
+                return $"The {productInStockDto.Name} was not in the products list.";
             }
         }
+    }
 
-        public List<StockProductViewModel> GetSalesProductList()
+
+    public string Sale(int ProductId, int cnt)
+    {
+        var product = _dbContext.db.FirstOrDefault(p => p.ProductId == ProductId);
+        int quantity = GetProductQuantity(ProductId);
+        if (quantity > cnt)
         {
-            var salesList = (from s in _dbContext.db
-                             join p in _productDbContext.db
-                             on s.ProductId equals p.Id
-                             select new StockProductViewModel()
-                             {
-                                 ProductId = p.Id,
-                                 BarCode = p.BarCode,
-                                 Name = s.Name,
-                                 ProductQuantity = s.ProductQuantity,
-                                 ProductPrice = s.ProductPrice
-                             }).ToList();
+            product.ProductQuantity -= cnt;
+            _dbContext.Set();
+            _log.Logger(product, cnt);
+            return $"{cnt} items of {product.Name} were sold successfully";
+        }
+        else
+        {
+            return "Insufficient stock";
+        }
+    }
 
-            string? projectPath = Directory.GetParent
-                                     (AppDomain.CurrentDomain.BaseDirectory)?
-                                     .Parent?.Parent?.Parent?.FullName;
-            string? txtFilePath = Path.Combine(projectPath,
-                                $"DataBase/SalesList.txt");
+    public List<StockProductViewModel> GetSalesProductList()
+    {
+        var salesList = (from s in _dbContext.db
+                         join p in _productDbContext.db
+                         on s.ProductId equals p.Id
+                         select new StockProductViewModel()
+                         {
+                             ProductId = p.Id,
+                             BarCode = p.BarCode,
+                             Name = s.Name,
+                             ProductQuantity = s.ProductQuantity,
+                             ProductPrice = s.ProductPrice
+                         }).ToList();
+        SaveInText(salesList);
+        return salesList;
+    }
 
-            using (TextWriter tw = File.CreateText(txtFilePath))
+    private void SaveInText(List<StockProductViewModel> salesList)
+    {
+        string? projectPath = Directory.GetParent
+                              (AppDomain.CurrentDomain.BaseDirectory)?
+                              .Parent?.Parent?.Parent?.FullName;
+        string? txtFilePath = Path.Combine(projectPath,
+                            $"DataBase/SalesList.txt");
+
+        using (TextWriter tw = File.CreateText(txtFilePath))
+        {
+            foreach (var s in salesList)
             {
-                foreach (var s in salesList)
-                {
-                    tw.WriteLine(s.ProductId + " " + s.BarCode + " " +
-                                    s.Name + " " + s.ProductPrice +
-                                    " " + s.ProductQuantity);
-                }
+                tw.WriteLine(s.ProductId + " " + s.BarCode + " " +
+                                s.Name + " " + s.ProductPrice +
+                                " " + s.ProductQuantity);
             }
-            return salesList;
         }
-
-
-        private int GetProductQuantity(int productId)
-        {
-            return (from s in _dbContext.db
-                    where s.ProductId == productId
-                    select s.ProductQuantity).FirstOrDefault();
-        }
+    }
+    private int GetProductQuantity(int productId)
+    {
+        return (from s in _dbContext.db
+                where s.ProductId == productId
+                select s.ProductQuantity).FirstOrDefault();
     }
 }

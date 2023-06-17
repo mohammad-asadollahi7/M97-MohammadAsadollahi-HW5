@@ -1,8 +1,7 @@
 ﻿
-namespace HW5.Interface.Dto
+namespace HW5.Interface.Dto;
+
+public class AddProductDto
 {
-    public class AddProductDto
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }
